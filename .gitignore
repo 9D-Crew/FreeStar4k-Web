@@ -1,5 +1,4 @@
 .DS_Store
-conf.py
 configs/*
 flavors/*
 __pycache__
