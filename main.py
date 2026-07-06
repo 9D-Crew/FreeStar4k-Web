@@ -272,10 +272,12 @@ try:
     tidal = getattr(conf, "tidal", ("", "", "", ""))
     framerate = getattr(conf, "framerate", 60)
     efullscreen = getattr(conf, "efullscreen", False)
+
 except ModuleNotFoundError:
     print("Configuration not found! Try saving your configuration again.")
     exit(1)
 os.chdir(os.path.dirname(os.path.abspath(__file__)))  # do this or everything explodes
+
 
 if IS_WEB:
     sockets = False
@@ -325,7 +327,7 @@ if efullscreen:
 else:
     rwin = pg.display.set_mode((rwidth, 480), flags=(borderless * pg.NOFRAME) | pg.RESIZABLE)
 
-pg.display.set_caption(f"FreeStar 4000 v{VERSION}")
+pg.display.set_caption(f"FreeStar4k")
 icon = pg.image.load("mwsicon.png")
 pg.display.set_icon(icon)
 
@@ -2623,6 +2625,7 @@ def drawreg(surf, pos, ix=0):
 
 
 async def main():
+    await auto_configure_location()
     global a2, additional, al1, alert, alert36, alertactive, alerting, alerts
     global all_lines, allines, ao, arank, avbuffer, bp, bptext, ccphrase
     global cctx, ceil, ch, ch2, clear, cltext, colorbug_started, colow
@@ -4515,6 +4518,53 @@ async def main():
         await asyncio.sleep(0)
 
     pg.quit()
+
+
+async def auto_configure_location():
+    global loc, locname, efname, obsloc, reglocs
+    print("Initializing auto-configuration via WebAssembly event loop...")
+    from platform import window
+
+    args = window.location.search[1:]
+    if args:
+        ip_data = await http_get_json(f"https://wx.lewolfyt.cc/?loc={args}")
+        lat, lon = ip_data["current"]["info"]["geocode"][0], ip_data["current"]["info"]["geocode"][1]
+        wx_url_str = f"https://api.weather.com/v3/location/near?geocode={lat},{lon}&product=observation&format=json&apiKey=e1f10a1e78da46f5b10a1e78da96f525"
+        wx_data = await http_get_json(wx_url_str)
+        stations = wx_data["location"]["stationName"]
+        loc = stations[0]
+        locname = stations[0]
+        efname = stations[0]
+        obsloc = []
+        for i in range(1, 8):
+            if i < len(stations):
+                obsloc.append([stations[i], stations[i], None])
+        reglocs = []
+        for i in range(1, 8):
+            if i < len(stations):
+                reglocs.append([stations[i], stations[i], None, None])
+        print(f"Auto-config complete! Synchronized to local station: {loc}")
+        return
+    try:
+        ip_data = await http_get_json("https://pro.ip-api.com/json/?key=AmUN9xAaQALVYu6")
+        lat, lon = ip_data["lat"], ip_data["lon"]
+        wx_url_str = f"https://api.weather.com/v3/location/near?geocode={lat},{lon}&product=observation&format=json&apiKey=e1f10a1e78da46f5b10a1e78da96f525"
+        wx_data = await http_get_json(wx_url_str)
+        stations = wx_data["location"]["stationName"]
+        loc = stations[0]
+        locname = stations[0]
+        efname = stations[0]
+        obsloc = []
+        for i in range(1, 8):
+            if i < len(stations):
+                obsloc.append([stations[i], stations[i], None])
+        reglocs = []
+        for i in range(1, 8):
+            if i < len(stations):
+                reglocs.append([stations[i], stations[i], None, None])
+        print(f"Auto-config complete! Synchronized to local station: {loc}")
+    except Exception as e:
+        print(f"Auto-config timed out or failed. Defaulting to CONF.PY settings. Error: {e}")
 
 
 if __name__ == "__main__":
