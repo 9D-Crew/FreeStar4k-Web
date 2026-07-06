@@ -43,13 +43,32 @@ ldlfeed=""
 flavor=['intro','cc', 'xf', 'lf', 'lo', 'al', 'lr']
 flavor_times=[5.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0 ]
 
-import requests as web
-# figure out where the fuck we are, and it better not be pyongyang!
-d = web.get("http://ip-api.com/json/").json()
-d = web.get(f"https://api.weather.com/v3/location/near?geocode={d['lat']},{d['lon']}&product=observation&format=json&apiKey=e1f10a1e78da46f5b10a1e78da96f525").json(); d = d['location']
-# set the vars
-mainloc=d['stationName'][0]; mainloc2=mainloc; efname=mainloc
-obsloc=[[d['stationName'][1], d['stationName'][1]], [d['stationName'][2], d['stationName'][2]], [d['stationName'][3], d['stationName'][3]], [d['stationName'][4], d['stationName'][4]], [d['stationName'][5], d['stationName'][5]], [d['stationName'][6], d['stationName'][6]], [d['stationName'][7], d['stationName'][7]]]
-reglocs=[d['stationName'][1], d['stationName'][2], d['stationName'][3], d['stationName'][4], d['stationName'][5], d['stationName'][6], d['stationName'][7]]; regnames=reglocs
-# we were never here
-web = None; d = None
+mainloc="John F. Kennedy International Airport"
+mainloc2="Kennedy Arpt"
+efname="New York Metro"
+obsloc=[
+    ["Bridgeport, CT", "Bridgeport"],
+    ["Islip, NY", "Islip"],
+    ["John F. Kennedy International Airport", "Kennedy Arpt"],
+    ["La Guardia Airport", "La Guardia Apt"],
+    ["Newark, NJ", "Newark"],
+    ["Teterboro, NJ", "Teterboro"],
+    ["Westchester County, NY", "Westchester Co"],
+]
+reglocs=[loc[0] for loc in obsloc]
+regnames=[loc[1] for loc in obsloc]
+
+try:
+    import sys
+    import requests as web
+except ModuleNotFoundError:
+    web = None
+
+if web is not None and sys.platform not in ("emscripten", "wasi"):
+    # Auto-location is useful locally, but pygbag needs config import to stay non-blocking.
+    d = web.get("http://ip-api.com/json/").json()
+    d = web.get(f"https://api.weather.com/v3/location/near?geocode={d['lat']},{d['lon']}&product=observation&format=json&apiKey=e1f10a1e78da46f5b10a1e78da96f525").json(); d = d['location']
+    mainloc=d['stationName'][0]; mainloc2=mainloc; efname=mainloc
+    obsloc=[[d['stationName'][1], d['stationName'][1]], [d['stationName'][2], d['stationName'][2]], [d['stationName'][3], d['stationName'][3]], [d['stationName'][4], d['stationName'][4]], [d['stationName'][5], d['stationName'][5]], [d['stationName'][6], d['stationName'][6]], [d['stationName'][7], d['stationName'][7]]]
+    reglocs=[d['stationName'][1], d['stationName'][2], d['stationName'][3], d['stationName'][4], d['stationName'][5], d['stationName'][6], d['stationName'][7]]; regnames=reglocs
+    web = None; d = None
