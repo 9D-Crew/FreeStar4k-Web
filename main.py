@@ -29,6 +29,7 @@ FREESTAR_FETCH_JS_READY = False
 
 
 if th is None:
+
     class _NoopEvent:
         def set(self):
             pass
@@ -947,8 +948,7 @@ async def _browser_fetch_text_with_jsiter(url):
         raise RuntimeError("pygbag platform.window/jsiter fetch bridge is not available")
 
     if not FREESTAR_FETCH_JS_READY:
-        window.eval(
-            """
+        window.eval("""
 window.FreeStarFetch = {};
 window.FreeStarFetch.GET = function * GET(url)
 {
@@ -1005,8 +1005,7 @@ window.FreeStarFetch.BYTES = function * BYTES(url)
     }
     yield content;
 }
-            """
-        )
+            """)
         FREESTAR_FETCH_JS_READY = True
 
     content = await jsiter(window.FreeStarFetch.GET(url))
@@ -1216,10 +1215,14 @@ async def getdata_async():
                 print("tidaling")
                 if wxdata:
                     lat, long = wxdata["current"]["info"]["geocode"]
-                    sr1 = (await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix"))["results"]
-                    sr2 = (await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix&date=tomorrow"))[
+                    sr1 = (await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix"))[
                         "results"
                     ]
+                    sr2 = (
+                        await http_get_json(
+                            f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix&date=tomorrow"
+                        )
+                    )["results"]
                     aldata["sun"] = {
                         "sunrise1": int(sr1["sunrise"]),
                         "sunset1": int(sr1["sunset"]),
@@ -1270,9 +1273,9 @@ async def getdata_async():
             if wxdata:
                 lat, long = wxdata["current"]["info"]["geocode"]
                 sr1 = (await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix"))["results"]
-                sr2 = (await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix&date=tomorrow"))[
-                    "results"
-                ]
+                sr2 = (
+                    await http_get_json(f"https://api.sunrisesunset.io/json?lat={lat}&lng={long}&time_format=unix&date=tomorrow")
+                )["results"]
                 aldata["sun"] = {
                     "sunrise1": int(sr1["sunrise"]),
                     "sunset1": int(sr1["sunset"]),
@@ -1432,6 +1435,7 @@ async def getdata_async():
         for i in range(retry_delay):
             await asyncio.sleep(1)
 
+
 def getdata():
     asyncio.run(getdata_async())
 
@@ -1448,6 +1452,7 @@ def _weather_task_done(task):
     except Exception:
         print("Weather task stopped unexpectedly:")
         print(tb.format_exc())
+
 
 if r is None and not IS_WEB:
     print("Weather updates disabled: requests is not available.")
@@ -2877,12 +2882,15 @@ async def main():
                             additional = "               Heat Index:"
                             additional += padtext(wxdata["current"]["conditions"]["feelsLike"], 3) + "°" + temp_symbol
                         page.append(
-                            textmerge(f'Temp:{padtext(wxdata["current"]["conditions"]["temperature"], 3)}°' + temp_symbol, additional)
+                            textmerge(
+                                f'Temp:{padtext(wxdata["current"]["conditions"]["temperature"], 3)}°' + temp_symbol, additional
+                            )
                         )
                         page.append(
                             textmerge(
                                 f'Humidity: {wxdata["current"]["conditions"]["humidity"]}%',
-                                f'                 Dewpoint:{padtext(wxdata["current"]["conditions"]["dewPoint"], 3)}°' + temp_symbol,
+                                f'                 Dewpoint:{padtext(wxdata["current"]["conditions"]["dewPoint"], 3)}°'
+                                + temp_symbol,
                             )
                         )
 
@@ -2910,7 +2918,9 @@ async def main():
                             wndtext = "Wind: Calm"
 
                         if wxdata["current"]["conditions"]["windGusts"] is not None:
-                            wndtext = textmerge(wndtext, f'                  Gusts to  {wxdata["current"]["conditions"]["windGusts"]}')
+                            wndtext = textmerge(
+                                wndtext, f'                  Gusts to  {wxdata["current"]["conditions"]["windGusts"]}'
+                            )
                         page.append(wndtext)
 
                         ceil = f':{padtext(wxdata["current"]["conditions"]["cloudCeiling"], 5)}{short_dist}'
@@ -2920,7 +2930,9 @@ async def main():
                                 ceil = ":" + ceil[1:]
                         else:
                             ceil = padtext(f'{wxdata["current"]["conditions"]["cloudCeiling"]} {short_dist}', 10)
-                        cltext = f'Visib:  {padtext(int(wxdata["current"]["conditions"]["visibility"]), 2)} {long_dist} Ceiling' + ceil
+                        cltext = (
+                            f'Visib:  {padtext(int(wxdata["current"]["conditions"]["visibility"]), 2)} {long_dist} Ceiling' + ceil
+                        )
                         page.append(cltext)
 
                         if veryuppercase:
@@ -3005,7 +3017,15 @@ async def main():
                         else:
                             ceil = padtext(f'{wxdata["current"]["conditions"]["cloudCeiling"]}{short_dist}', 9)
                             drawshadow(
-                                starfont32, ceil, 526 + txoff, 219 + ldl_y, 3, ofw=1.07, mono=14.5, upper=veryuppercase, char_offsets={}
+                                starfont32,
+                                ceil,
+                                526 + txoff,
+                                219 + ldl_y,
+                                3,
+                                ofw=1.07,
+                                mono=14.5,
+                                upper=veryuppercase,
+                                char_offsets={},
                             )
 
                         drawshadow(starfont32, "Visibility:", 394 + txoff, 261 + ldl_y, 3, ofw=1.07, mono=14.5, upper=veryuppercase)
@@ -3641,7 +3661,8 @@ async def main():
                         j = i + 4 + subpage * 4
                         header = wxdata["extended"]["daypart"][j]["name"].upper()
                         header = textmerge(
-                            header, f"                {'HI' if wxdata['extended']['daypart'][j]['dayOrNight'] == 'D' else 'LO'}  WIND"
+                            header,
+                            f"                {'HI' if wxdata['extended']['daypart'][j]['dayOrNight'] == 'D' else 'LO'}  WIND",
                         )
                         drawshadow(
                             smallfont, header, 62 + 14 + txoff, 84 + ldl_y + (yoo + 77) * i + 9, 3, mono=gmono, upper=veryuppercase
@@ -3714,7 +3735,9 @@ async def main():
 
                 for i, line in enumerate(wraptext(introtx, 30)):
                     tx, dr = drawing(line, dr, True)
-                    drawshadow(starfont32, tx, 98 + txoff, 109 + linespacing * 1.75 + 32 * i + ldl_y, 3, mono=gmono, char_offsets={})
+                    drawshadow(
+                        starfont32, tx, 98 + txoff, 109 + linespacing * 1.75 + 32 * i + ldl_y, 3, mono=gmono, char_offsets={}
+                    )
                     # dr -= len(line.replace(" ", ""))
             elif slide == "ro":
                 win.blit(regmapcut, (0, 0))
@@ -4015,7 +4038,9 @@ async def main():
                         drawshadow(starfont32, "Today", xx, 409, 3, mono=15, color=yeller)
                         drawshadow(starfont32, "'", xx + 72, 409, 3, mono=15, color=yeller)
                         drawshadow(starfont32, "s Forecast:", xx + 85, 409, 3, mono=15, color=yeller)
-                        drawshadow(starfont32, "               High:", xx + 85 + 50 + ldlextra * 2 * 18, 409, 3, mono=18, color=yeller)
+                        drawshadow(
+                            starfont32, "               High:", xx + 85 + 50 + ldlextra * 2 * 18, 409, 3, mono=18, color=yeller
+                        )
                         drawshadow(
                             starfont32,
                             f"                    {padtext(wxdata['extended']['daypart'][0]['temperature'], 3)}°{temp_symbol}",
@@ -4029,7 +4054,9 @@ async def main():
                         drawshadow(starfont32, "Tomorrow", xx, 409, 3, mono=15, color=yeller)
                         drawshadow(starfont32, "'", xx + 72 + 50, 409, 3, mono=15, color=yeller)
                         drawshadow(starfont32, "s Forecast:", xx + 85 + 50, 409, 3, mono=15, color=yeller)
-                        drawshadow(starfont32, "               High:", xx + 85 + 50 + ldlextra * 2 * 18, 409, 3, mono=18, color=yeller)
+                        drawshadow(
+                            starfont32, "               High:", xx + 85 + 50 + ldlextra * 2 * 18, 409, 3, mono=18, color=yeller
+                        )
                         drawshadow(
                             starfont32,
                             f"                    {padtext(wxdata['extended']['daypart'][1]['temperature'], 3)}°{temp_symbol}",
@@ -4088,10 +4115,21 @@ async def main():
                         pg.Rect(0, 404, screenw, 76),
                     )
                 jrf = jrfontnormal
-                if ((slide in ["lr", "cr"]) or (colorbug_started and colorbug_nat and ldlmode)) and ("warnpalbug" in old) and alerting:
+                if (
+                    ((slide in ["lr", "cr"]) or (colorbug_started and colorbug_nat and ldlmode))
+                    and ("warnpalbug" in old)
+                    and alerting
+                ):
                     jrf = jrfontradaralert
                 drawshadow(
-                    starfont32, crawl, round(screenw - crawlscroll), 403 + ldl_y_off, 3, mono=gmono, char_offsets={}, jr_override=jrf
+                    starfont32,
+                    crawl,
+                    round(screenw - crawlscroll),
+                    403 + ldl_y_off,
+                    3,
+                    mono=gmono,
+                    char_offsets={},
+                    jr_override=jrf,
                 )
                 if not alerting:
                     crawltime -= delta * seconds
@@ -4123,7 +4161,16 @@ async def main():
             drawshadow(startitlefont, ln, 194 + txoff // 3, 30, 3, mono=18, ofw=1.07, upper=veryuppercase)
         elif slide == "cc":
             drawshadow(
-                startitlefont, "Current", 194 + txoff // 3, 25 + ldl_y, 3, color=yeller, mono=18, ofw=1.07, bs=True, upper=veryuppercase
+                startitlefont,
+                "Current",
+                194 + txoff // 3,
+                25 + ldl_y,
+                3,
+                color=yeller,
+                mono=18,
+                ofw=1.07,
+                bs=True,
+                upper=veryuppercase,
             )
             drawshadow(
                 startitlefont,
@@ -4178,7 +4225,16 @@ async def main():
             )
         elif slide == "al":
             drawshadow(
-                startitlefont, "Almanac", 181 + txoff // 3, 39 + ldl_y, 3, color=yeller, mono=18, ofw=1.07, bs=True, upper=veryuppercase
+                startitlefont,
+                "Almanac",
+                181 + txoff // 3,
+                39 + ldl_y,
+                3,
+                color=yeller,
+                mono=18,
+                ofw=1.07,
+                bs=True,
+                upper=veryuppercase,
             )
         elif slide == "xf":
             if "oldtitles" in old:
@@ -4209,11 +4265,29 @@ async def main():
                 )
         elif slide == "ol":
             drawshadow(
-                startitlefont, "Outlook", 194 + txoff // 3, 39 + ldl_y, 3, color=yeller, mono=16, ofw=1.07, bs=True, upper=veryuppercase
+                startitlefont,
+                "Outlook",
+                194 + txoff // 3,
+                39 + ldl_y,
+                3,
+                color=yeller,
+                mono=16,
+                ofw=1.07,
+                bs=True,
+                upper=veryuppercase,
             )
         elif slide == "sf":
             drawshadow(
-                startitlefont, "School", 194 + txoff // 3, 25 + ldl_y, 3, color=yeller, mono=18, ofw=1.07, bs=True, upper=veryuppercase
+                startitlefont,
+                "School",
+                194 + txoff // 3,
+                25 + ldl_y,
+                3,
+                color=yeller,
+                mono=18,
+                ofw=1.07,
+                bs=True,
+                upper=veryuppercase,
             )
             drawshadow(
                 startitlefont,
@@ -4280,7 +4354,15 @@ async def main():
             )
         elif slide == "tcf":
             drawshadow(
-                startitlefont, "Travel Forecast", 181 + txoff // 3, 25 + ldl_y, 3, color=yeller, mono=18, ofw=1.07, upper=veryuppercase
+                startitlefont,
+                "Travel Forecast",
+                181 + txoff // 3,
+                25 + ldl_y,
+                3,
+                color=yeller,
+                mono=18,
+                ofw=1.07,
+                upper=veryuppercase,
             )
             drawshadow(
                 startitlefont,
@@ -4295,7 +4377,16 @@ async def main():
             )
         elif slide == "ti":
             drawshadow(
-                startitlefont, "Tides", 181 + txoff // 3, 39 + ldl_y, 3, color=yeller, mono=16, ofw=1.07, bs=True, upper=veryuppercase
+                startitlefont,
+                "Tides",
+                181 + txoff // 3,
+                39 + ldl_y,
+                3,
+                color=yeller,
+                mono=16,
+                ofw=1.07,
+                bs=True,
+                upper=veryuppercase,
             )
         elif slide == "test":
             drawshadow(startitlefont, "Test Page", 181, 25 + ldl_y, 3, color=yeller, mono=15.5, ofw=1.07, bs=True)
@@ -4334,7 +4425,14 @@ async def main():
             elif ldlmode or textpos >= 2:
                 txo = -6 if textpos <= 2 else ldl_y // 2
                 drawshadow(
-                    smallfont, time.upper(), 465 + round((screenw - 768) * 2 / 3), 375 + txo, 3, mono=gmono, color=tcl, char_offsets={}
+                    smallfont,
+                    time.upper(),
+                    465 + round((screenw - 768) * 2 / 3),
+                    375 + txo,
+                    3,
+                    mono=gmono,
+                    color=tcl,
+                    char_offsets={},
                 )
                 drawshadow(smallfont, date.upper(), 60 + round((screenw - 768) / 3), 375 + txo, 3, mono=gmono, char_offsets={})
             elif slide == "oldcc" and not ldlmode and textpos < 2:
