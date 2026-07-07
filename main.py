@@ -4523,9 +4523,13 @@ async def main():
 async def auto_configure_location():
     global loc, locname, efname, obsloc, reglocs
     print("Initializing auto-configuration via WebAssembly event loop...")
-    from platform import window
-
-    args = window.location.search[1:]
+    try:
+        from platform import window
+        args = window.location.search[1:]
+    except:
+        print("no args or runnning local")
+        args = None
+    
     if args:
         ip_data = await http_get_json(f"https://wx.lewolfyt.cc/?loc={args}")
         lat, lon = ip_data["current"]["info"]["geocode"][0], ip_data["current"]["info"]["geocode"][1]
