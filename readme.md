@@ -2,7 +2,7 @@
 
 # FreeStar4k-Web
 <img src="https://freestar.9dcrew.org/scr.jpg">
-FreeStar4k is a high-accuracy simulation of the WeatherSTAR 4000, a computer system designed fby The Weather Channel for generating on screen graphics for showing the weather.
+FreeStar4k is a high-accuracy simulation of the WeatherSTAR 4000, a computer system designed by The Weather Channel for generating on screen graphics for showing the weather.
 <br><br>
 
 This fork's main goal is for support with ```pygbag```, however it also acts as a continuation of the original project.
