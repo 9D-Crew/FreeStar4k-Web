@@ -14,3 +14,9 @@ Install `pygbag` with pip, and in the root of the project run `python3 -m pygbag
 <br>The project will compile and automatically start a server at `http://localhost:8000`.
 <br>Alternatively, run `python3 main.py` in the project root to run locally.
 <br>Currently this is worse then using the online version as manual location input is not supported, however it is coming soon.
+
+# Credit 
+
+[FreeSTAR4K](https://github.com/LeWolfYT/freestar4k) was made by LeWolfYT, Web-Port done by Flybotworld. 
+<br> 
+and you, the user for trying this out. Thank You.
